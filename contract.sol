@@ -32,9 +32,20 @@ contract TokenManager {
     event WitnessElected(address indexed witness);
     event WitnessDowngraded(address indexed witness);
 
-    constructor(uint256 _initialSupply) {
-        totalSupply = _initialSupply * (10 ** decimals);
-        balanceOf[msg.sender] = totalSupply;
+    constructor(uint256 _initialSupply) payable {
+    require(msg.value > 0, "ETH must be sent to deploy contract");  // Проверяем, что ETH передан
+    totalSupply = _initialSupply * (10 ** decimals);
+    balanceOf[msg.sender] = totalSupply;
+    }
+    receive() external payable {
+    // Просто принимает и хранит ETH
+    }
+
+    function getContractBalance() public view returns (uint256) {
+    return address(this).balance;
+    }
+    function withdrawETH() public {
+    payable(msg.sender).transfer(address(this).balance);
     }
 
     modifier onlyWitness() {
@@ -177,4 +188,5 @@ contract TokenManager {
         _transfer(msg.sender, _to, _value);
         return true;
     }
+    
 }
